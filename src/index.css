@@ -45,4 +45,16 @@
   .swipe-overlay.skip {
     @apply bg-secondary-500/20 text-secondary-600;
   }
+
+  /* Smooth scrolling for workout cards */
+  .workout-scroll-container {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+
+  .workout-scroll-container::-webkit-scrollbar {
+    display: none; /* WebKit */
+  }
 }

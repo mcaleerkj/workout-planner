@@ -1,3 +1,14 @@
+export type ProgramExercise = {
+  exerciseId: string; // References exerciseLibrary
+  overrideSets?: number;
+  overrideReps?: string;
+  overrideRpe?: string;
+  overrideRest?: string;
+  overrideNotes?: string;
+  id: string; // Unique ID for this instance in the program
+};
+
+// Legacy type for backward compatibility during transition
 export type Exercise = {
   id: string;
   name: string;
@@ -1738,4 +1749,64 @@ export const getTotalWeeks = (): number => {
 
 export const getTotalDaysPerWeek = (): number => {
   return programWeeks[0]?.days.length || 0;
+};
+
+// Import exercise library for lookups
+import { getExerciseById } from './exerciseLibrary';
+
+// Helper function to resolve a ProgramExercise to its full definition
+export const resolveExercise = (programExercise: ProgramExercise): Exercise => {
+  const definition = getExerciseById(programExercise.exerciseId);
+
+  if (!definition) {
+    throw new Error(`Exercise not found in library: ${programExercise.exerciseId}`);
+  }
+
+  return {
+    id: programExercise.id,
+    name: definition.name,
+    sets: programExercise.overrideSets ?? definition.defaultSets,
+    reps: programExercise.overrideReps ?? definition.defaultReps,
+    rpe: programExercise.overrideRpe ?? definition.rpe ?? '',
+    rest: programExercise.overrideRest ?? definition.rest ?? '',
+    notes: programExercise.overrideNotes ?? definition.notes ?? ''
+  };
+};
+
+// Helper function to get all exercises for a day as resolved Exercise objects
+export const getDayExercises = (weekId: string, dayId: string): Exercise[] => {
+  const day = getDayById(weekId, dayId);
+  if (!day) return [];
+
+  return day.exercises.map(resolveExercise);
+};
+
+// Helper function to get exercise ID from current exercise structure
+export const getExerciseIdFromExercise = (exercise: Exercise): string => {
+  // For now, we'll create IDs based on exercise names
+  // This is a temporary solution until full migration
+  const nameToId: Record<string, string> = {
+    'Back Squat': 'back-squat',
+    'Barbell Bench Press': 'barbell-bench-press',
+    'Lat Pulldown': 'lat-pulldown',
+    'Romanian Deadlift': 'romanian-deadlift',
+    'Assisted Dip': 'assisted-dip',
+    'Standing Calf Raise': 'standing-calf-raise',
+    'Dumbbell Supinated Curl': 'dumbbell-supinated-curl',
+    'Deadlift': 'deadlift',
+    'Military Press': 'military-press',
+    'Chest Supported T-Bar Row': 'chest-supported-t-bar-row',
+    'Leg Extension': 'leg-extension',
+    'Cable Flye': 'cable-flye',
+    'Crunch': 'crunch',
+    'Dumbbell Skull Crusher': 'dumbbell-skull-crusher',
+    'Dumbbell Walking Lunge': 'dumbbell-walking-lunge',
+    'Dumbbell Incline Press': 'dumbbell-incline-press',
+    'Reverse Grip Lat Pulldown': 'reverse-grip-lat-pulldown',
+    'Seated Face Pull': 'seated-face-pull',
+    'Dumbbell Lateral Raise': 'dumbbell-lateral-raise',
+    'Lying Leg Curl': 'lying-leg-curl'
+  };
+
+  return nameToId[exercise.name] || exercise.name.toLowerCase().replace(/\s+/g, '-');
 };
