@@ -1778,7 +1778,7 @@ export const getDayExercises = (weekId: string, dayId: string): Exercise[] => {
   const day = getDayById(weekId, dayId);
   if (!day) return [];
 
-  return day.exercises.map(resolveExercise);
+  return day.exercises;
 };
 
 // Helper function to get exercise ID from current exercise structure
